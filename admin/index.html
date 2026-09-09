@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stiven & Mary — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #F0EFE9;
+    --bg-card:   #FFFFFF;
+    --blue:      #7BA7BC;
+    --blue-dark: #2E5F80;
+    --blue-pale: #E8EFF5;
+    --charcoal:  #2A2A2A;
+    --mid:       #5A5A5A;
+    --soft:      #8A8A8A;
+    --border:    #D8E4EC;
+    --green:     #4CAF7D;
+    --red:       #E07070;
+    --yellow:    #D4A843;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--charcoal); min-height: 100vh; }
+
+  .form-field { margin-bottom: 1.2rem; text-align: left; }
+  .form-field label {
+    display: block; font-size: 0.75rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--soft); margin-bottom: 0.4rem;
+  }
+  .form-field input {
+    width: 100%; padding: 0.85rem 1rem;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    color: var(--charcoal); background: var(--bg);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-field input:focus { border-color: var(--blue); }
+
+  /* ── DASHBOARD ── */
+  .topbar {
+    background: var(--blue-dark); color: #fff;
+    padding: 1rem 2rem; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .topbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 300; font-style: italic;
+  }
+  .main { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+
+  /* ── STATS ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--bg-card); border-radius: 12px;
+    padding: 1.25rem 1rem; text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 300; line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-label { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--soft); }
+  .stat-card.confirmados .stat-number { color: var(--green); }
+  .stat-card.rechazados  .stat-number { color: var(--red); }
+  .stat-card.pendientes  .stat-number { color: var(--yellow); }
+  .stat-card.cupos       .stat-number { color: var(--blue-dark); }
+
+  /* ── AGREGAR ── */
+  .section-card {
+    background: var(--bg-card); border-radius: 12px;
+    padding: 1.5rem; margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .section-heading {
+    font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue); margin-bottom: 1.2rem; font-weight: 500;
+  }
+  .add-form { display: flex; gap: 0.8rem; align-items: flex-end; flex-wrap: wrap; }
+  .add-form .form-field { margin-bottom: 0; flex: 1; min-width: 160px; }
+  .add-form .form-field.cupos-field { flex: 0 0 100px; }
+  .btn-add {
+    padding: 0.85rem 1.5rem; background: var(--blue-dark); color: #fff;
+    border: none; border-radius: 8px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-add:hover { background: var(--blue); }
+  .add-message { font-size: 0.85rem; margin-top: 0.8rem; display: none; }
+  .add-message.ok  { color: var(--green); }
+  .add-message.err { color: var(--red); }
+
+  /* ── LISTA ── */
+  .list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem;
+  }
+  .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .filter-btn {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.35rem 0.9rem; border-radius: 20px;
+    border: 1px solid var(--border); background: transparent;
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    cursor: pointer; color: var(--mid); transition: all 0.2s;
+  }
+  .filter-btn.active { background: var(--blue-dark); color: #fff; border-color: var(--blue-dark); }
+  .search-input {
+    padding: 0.4rem 0.9rem; border: 1px solid var(--border);
+    border-radius: 20px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; outline: none; background: var(--bg);
+    color: var(--charcoal); transition: border-color 0.2s; width: 200px;
+  }
+  .search-input:focus { border-color: var(--blue); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--soft);
+    padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--blue-pale); }
+  tbody td { padding: 0.85rem 0.8rem; font-size: 0.9rem; vertical-align: middle; }
+
+  .badge {
+    display: inline-block; padding: 0.2rem 0.7rem;
+    border-radius: 20px; font-size: 0.72rem; font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .badge.pendiente  { background: #FFF8E7; color: #B8860B; }
+  .badge.aceptada   { background: #E8F5EE; color: #2E7D55; }
+  .badge.rechazada  { background: #FDEAEA; color: #C0392B; }
+
+  .btn-icon {
+    border: none; background: none; cursor: pointer; padding: 0.3rem;
+    border-radius: 6px; transition: background 0.15s; font-size: 1rem;
+  }
+  .btn-icon:hover { background: var(--border); }
+  .btn-icon.copy:hover { background: var(--blue-pale); }
+  .btn-icon.del:hover  { background: #FDEAEA; }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--soft); font-size: 0.9rem;
+  }
+
+  @media (max-width: 700px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-card.cupos { grid-column: span 2; }
+    .add-form { flex-direction: column; }
+    .add-form .form-field { width: 100%; }
+    .topbar { padding: 0.8rem 1rem; }
+    .main { padding: 1rem; }
+    table thead { display: none; }
+    tbody td { display: block; padding: 0.3rem 0.8rem; }
+    tbody td::before {
+      content: attr(data-label) ': ';
+      font-size: 0.7rem; color: var(--soft); text-transform: uppercase;
+    }
+    tbody tr { padding: 0.8rem 0; display: block; }
+  }
+</style>
+</head>
+<body>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <span class="topbar-title">Stiven &amp; Mary — Invitaciones</span>
+  </div>
+
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">—</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card confirmados">
+        <div class="stat-number" id="stat-confirmados">—</div>
+        <div class="stat-label">Confirmados</div>
+      </div>
+      <div class="stat-card rechazados">
+        <div class="stat-number" id="stat-rechazados">—</div>
+        <div class="stat-label">Rechazados</div>
+      </div>
+      <div class="stat-card pendientes">
+        <div class="stat-number" id="stat-pendientes">—</div>
+        <div class="stat-label">Sin respuesta</div>
+      </div>
+      <div class="stat-card cupos">
+        <div class="stat-number" id="stat-cupos">—</div>
+        <div class="stat-label">Cupos confirmados</div>
+      </div>
+    </div>
+
+    <!-- AGREGAR INVITADO -->
+    <div class="section-card">
+      <div class="section-heading">Agregar invitado</div>
+      <div class="add-form">
+        <div class="form-field">
+          <label>Nombre completo</label>
+          <input type="text" id="add-nombre" placeholder="Ej: María González">
+        </div>
+        <div class="form-field cupos-field">
+          <label>Cupos</label>
+          <input type="number" id="add-cupos" value="1" min="1" max="20">
+        </div>
+        <button class="btn-add" id="btn-add"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3rem"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar</button>
+      </div>
+      <p class="add-message" id="add-message"></p>
+    </div>
+
+    <!-- LISTA -->
+    <div class="section-card">
+      <div class="list-header">
+        <div class="section-heading" style="margin-bottom:0">Lista de invitados</div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center">
+          <input class="search-input" id="search-input" type="text" placeholder="Buscar...">
+          <div class="filters">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="aceptada"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirmados</button>
+            <button class="filter-btn" data-filter="rechazada"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Rechazados</button>
+            <button class="filter-btn" data-filter="pendiente"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pendientes</button>
+          </div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Cupos</th>
+            <th>Estado</th>
+            <th>Respondió</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="invitados-tbody">
+          <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'http://boda.test/api';
+const INVITE_URL = 'http://boda.test/wedding-invitation_1.html';
+
+let todosLosInvitados = [];
+let filtroActual = 'todos';
+let busqueda = '';
+
+/* ── UTILIDADES ── */
+function $(id) { return document.getElementById(id); }
+
+function api(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  return fetch(API + endpoint, { headers, ...options }).then(r => r.json());
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+const ICONS = {
+  check:   `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  x:       `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  clock:   `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  link:    `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+  trash:   `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+};
+
+function badgeHTML(estado) {
+  const map = {
+    pendiente: { icon: ICONS.clock,  label: 'Pendiente' },
+    aceptada:  { icon: ICONS.check,  label: 'Aceptada'  },
+    rechazada: { icon: ICONS.x,      label: 'Rechazada' },
+  };
+  const { icon, label } = map[estado] || { icon: '', label: estado };
+  return `<span class="badge ${estado}" style="display:inline-flex;align-items:center;gap:0.3rem">${icon}${label}</span>`;
+}
+
+async function copiarTexto(texto) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch {}
+  }
+  // Fallback para contextos no seguros (http)
+  const textarea = document.createElement('textarea');
+  textarea.value = texto;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch {}
+  document.body.removeChild(textarea);
+  return ok;
+}
+
+async function copiarLink(nombre, cupos, btn) {
+  const url = `${INVITE_URL}?nombre=${encodeURIComponent(nombre)}&cupos=${cupos}`;
+  const ok = await copiarTexto(url);
+  if (!ok) {
+    showToast('No se pudo copiar el enlace');
+    return;
+  }
+  // Feedback directo en el botón
+  const original = btn.innerHTML;
+  btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+  btn.style.color = 'var(--green)';
+  // Tooltip "Copiado" flotante junto al botón
+  const tip = document.createElement('span');
+  tip.textContent = 'Copiado';
+  Object.assign(tip.style, {
+    position: 'absolute', background: 'var(--charcoal)', color: '#fff',
+    fontSize: '0.72rem', padding: '0.2rem 0.55rem', borderRadius: '4px',
+    whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: '999',
+    transform: 'translateY(-130%)', opacity: '1', transition: 'opacity 0.3s',
+  });
+  btn.style.position = 'relative';
+  btn.appendChild(tip);
+  setTimeout(() => {
+    tip.style.opacity = '0';
+    setTimeout(() => {
+      btn.innerHTML = original;
+      btn.style.color = '';
+      btn.style.position = '';
+      tip.remove();
+    }, 300);
+  }, 1400);
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+    background: '#2E5F80', color: '#fff', padding: '0.6rem 1.4rem',
+    borderRadius: '8px', fontSize: '0.85rem', zIndex: '9999',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.2)', transition: 'opacity 0.3s',
+  });
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2000);
+}
+
+/* ── STATS ── */
+function actualizarStats(lista) {
+  const total       = lista.length;
+  const confirmados = lista.filter(i => i.estado === 'aceptada').length;
+  const rechazados  = lista.filter(i => i.estado === 'rechazada').length;
+  const pendientes  = lista.filter(i => i.estado === 'pendiente').length;
+  const cupos       = lista.filter(i => i.estado === 'aceptada').reduce((s, i) => s + i.cupos, 0);
+
+  $('stat-total').textContent       = total;
+  $('stat-confirmados').textContent = confirmados;
+  $('stat-rechazados').textContent  = rechazados;
+  $('stat-pendientes').textContent  = pendientes;
+  $('stat-cupos').textContent       = cupos;
+}
+
+/* ── TABLA ── */
+function renderTabla() {
+  let lista = todosLosInvitados;
+
+  if (filtroActual !== 'todos') {
+    lista = lista.filter(i => i.estado === filtroActual);
+  }
+  if (busqueda) {
+    const q = busqueda.toLowerCase();
+    lista = lista.filter(i => i.nombre.toLowerCase().includes(q));
+  }
+
+  const tbody = $('invitados-tbody');
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay invitados que coincidan.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(inv => `
+    <tr>
+      <td data-label="Nombre"><strong>${escapeHTML(inv.nombre)}</strong></td>
+      <td data-label="Cupos">${inv.cupos}</td>
+      <td data-label="Estado">${badgeHTML(inv.estado)}</td>
+      <td data-label="Respondió">${formatDate(inv.responded_at)}</td>
+      <td>
+        <button class="btn-icon copy" title="Copiar enlace" onclick="copiarLink('${escapeAttr(inv.nombre)}', ${inv.cupos}, this)">${ICONS.link}</button>
+        <button class="btn-icon del"  title="Eliminar" onclick="eliminarInvitado(${inv.id}, '${escapeAttr(inv.nombre)}')">${ICONS.trash}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeAttr(str) {
+  return str.replace(/'/g,"\\'");
+}
+
+/* ── CARGAR INVITADOS ── */
+async function cargarInvitados() {
+  const data = await api('/invitados.php');
+  if (!Array.isArray(data)) return;
+  todosLosInvitados = data;
+  actualizarStats(data);
+  renderTabla();
+}
+
+/* ── AGREGAR ── */
+$('btn-add').addEventListener('click', async () => {
+  const nombre = $('add-nombre').value.trim();
+  const cupos  = parseInt($('add-cupos').value) || 1;
+  const msg    = $('add-message');
+
+  if (!nombre) {
+    msg.textContent = 'El nombre es requerido.';
+    msg.className = 'add-message err';
+    msg.style.display = 'block';
+    return;
+  }
+
+  $('btn-add').disabled = true;
+  const res = await api('/agregar.php', { method: 'POST', body: JSON.stringify({ nombre, cupos }) });
+  $('btn-add').disabled = false;
+
+  if (res.status === 'success') {
+    todosLosInvitados.unshift(res.invitado);
+    actualizarStats(todosLosInvitados);
+    renderTabla();
+    $('add-nombre').value = '';
+    $('add-cupos').value = '1';
+    msg.innerHTML = `${ICONS.check} <strong>${escapeHTML(nombre)}</strong> agregado con ${cupos} cupo(s).`;
+    msg.className = 'add-message ok';
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  } else {
+    msg.innerHTML = ICONS.x + ' ' + escapeHTML(res.message);
+    msg.className = 'add-message err';
+    msg.style.display = 'block';
+  }
+});
+
+$('add-nombre').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-add').click(); });
+
+/* ── ELIMINAR ── */
+async function eliminarInvitado(id, nombre) {
+  if (!confirm(`¿Eliminar a "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  const res = await api('/eliminar.php', { method: 'DELETE', body: JSON.stringify({ id }) });
+  if (res.status === 'success') {
+    todosLosInvitados = todosLosInvitados.filter(i => i.id !== id);
+    actualizarStats(todosLosInvitados);
+    renderTabla();
+    showToast(`"${nombre}" eliminado`);
+  } else {
+    alert('Error al eliminar: ' + res.message);
+  }
+}
+
+/* ── FILTROS ── */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filtroActual = btn.dataset.filter;
+    renderTabla();
+  });
+});
+
+$('search-input').addEventListener('input', e => {
+  busqueda = e.target.value;
+  renderTabla();
+});
+
+/* ── CARGA INICIAL (sin login) ── */
+cargarInvitados();
+</script>
+</body>
+</html>
