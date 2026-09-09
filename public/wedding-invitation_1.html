@@ -97,6 +97,34 @@
   .modal-btn:hover { background: var(--gold); color: var(--charcoal); }
 
   /* ══════════════════════════════
+     CONTROL DE MÚSICA
+  ══════════════════════════════ */
+  .music-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(42,42,42,0.55);
+    color: #fff;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .music-toggle:hover { background: rgba(42,42,42,0.75); transform: scale(1.06); }
+  .music-toggle.playing .icon-sound { display: block; }
+  .music-toggle.playing .icon-muted { display: none; }
+  .music-toggle:not(.playing) .icon-sound { display: none; }
+  .music-toggle:not(.playing) .icon-muted { display: block; }
+
+  /* ══════════════════════════════
      ANIMACIÓN 1 — PÉTALOS CAYENDO
   ══════════════════════════════ */
   #petals-canvas {
@@ -1341,6 +1369,15 @@
   <button class="modal-btn" onclick="closeModal()" aria-label="Entrar a la invitación">Acompáñanos</button>
 </div>
 
+<!-- MÚSICA DE FONDO -->
+<audio id="bg-music" loop preload="auto">
+  <source src="audio/clair-de-lune.mp3" type="audio/mpeg">
+</audio>
+<button id="music-toggle" class="music-toggle" aria-label="Silenciar música" aria-pressed="false">
+  <svg class="icon-sound" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+  <svg class="icon-muted" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+</button>
+
 <!-- HERO -->
 <section id="hero" aria-label="Portada">
   <div class="hero-bg" aria-hidden="true"></div>
@@ -1642,7 +1679,39 @@ function closeModal() {
   document.getElementById('welcome-modal').classList.add('hidden');
   document.body.style.overflow = '';
   window.scrollTo(0, 0);
+  iniciarMusica();
 }
+
+/* ─────────────────────────────────────────
+   MÚSICA DE FONDO
+───────────────────────────────────────── */
+const bgMusic     = document.getElementById('bg-music');
+const musicToggle = document.getElementById('music-toggle');
+bgMusic.volume = 0.35;
+
+function iniciarMusica() {
+  bgMusic.play().then(() => {
+    musicToggle.classList.add('playing');
+    musicToggle.setAttribute('aria-pressed', 'true');
+    musicToggle.setAttribute('aria-label', 'Silenciar música');
+  }).catch(() => {
+    // Autoplay bloqueado por el navegador; el usuario puede activarla con el botón
+  });
+}
+
+musicToggle.addEventListener('click', () => {
+  if (bgMusic.paused) {
+    bgMusic.play();
+    musicToggle.classList.add('playing');
+    musicToggle.setAttribute('aria-pressed', 'true');
+    musicToggle.setAttribute('aria-label', 'Silenciar música');
+  } else {
+    bgMusic.pause();
+    musicToggle.classList.remove('playing');
+    musicToggle.setAttribute('aria-pressed', 'false');
+    musicToggle.setAttribute('aria-label', 'Activar música');
+  }
+});
 
 /* ─────────────────────────────────────────
    URL PARAMS
