@@ -1963,10 +1963,12 @@ if (gallerySection && galleryTrack) {
   carouselObserver.observe(gallerySection);
 }
 
-/* Parallax efecto mouse en fotos flotantes del hero */
+/* Parallax efecto mouse en fotos flotantes del hero (solo dispositivos con mouse real) */
 const heroFloatingPhotos = document.querySelectorAll('.hero-floating-photo');
 const heroSection = document.getElementById('hero');
+const tieneMouseReal = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+if (tieneMouseReal) {
 document.addEventListener('mousemove', (e) => {
   if (!heroSection) return;
 
@@ -1990,6 +1992,7 @@ document.addEventListener('mousemove', (e) => {
     photo.style.transform = `translate(${distX}px, ${distY}px) rotate(${rot}deg)`;
   });
 });
+}
 </script>
 </body>
 </html>
