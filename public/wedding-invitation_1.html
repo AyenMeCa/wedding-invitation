@@ -1714,19 +1714,92 @@ musicToggle.addEventListener('click', () => {
 });
 
 /* ─────────────────────────────────────────
-   URL PARAMS
+   URL PARAMS + RSVP
 ───────────────────────────────────────── */
-const params = new URLSearchParams(window.location.search);
-const cupos  = params.get('cupos');
-if (cupos) document.getElementById('cupos-display').textContent = cupos;
-const nombreParam = params.get('nombre') || '';
-const nombreEl = document.getElementById('nombre-display');
-if (nombreParam && nombreEl) nombreEl.textContent = nombreParam;
+const API_BASE   = 'http://boda.test/api';
+const params     = new URLSearchParams(window.location.search);
+const nombreParam = (params.get('nombre') || '').trim();
+const cuposParam  = parseInt(params.get('cupos')) || 0;
+
+const nombreEl   = document.getElementById('nombre-display');
+const cuposEl    = document.getElementById('cupos-display');
+const btnAceptar = document.getElementById('btnAceptar');
+const btnRechazar= document.getElementById('btnRechazar');
+const mensajeEl  = document.getElementById('mensaje');
+const rsvpDiv    = document.querySelector('.rsvp-actions');
+
+if (nombreParam) nombreEl.textContent = nombreParam;
+if (cuposParam)  cuposEl.textContent  = cuposParam;
 
 // Sin parámetros → página pública: ocultar secciones exclusivas de invitados
-if (!(nombreParam && cupos)) {
+const esInvitado = !!(nombreParam && cuposParam);
+
+if (!esInvitado) {
   document.body.classList.add('modo-publico');
+} else {
+  // Verificar si ya respondió
+  verificarRespuesta();
 }
+
+function mostrarMensaje(texto, color) {
+  if (!mensajeEl) return;
+  mensajeEl.textContent  = texto;
+  mensajeEl.className = 'section-body';
+  mensajeEl.style.cssText = `
+    display:block; margin-top:1.5rem; text-align:left;
+    color:${color};
+  `;
+  if (rsvpDiv) rsvpDiv.style.display = 'none';
+}
+
+function bloquearBotones(estadoRegistrado) {
+  if (btnAceptar) btnAceptar.disabled = true;
+  if (btnRechazar) btnRechazar.disabled = true;
+  if (estadoRegistrado === 'aceptada') {
+    mostrarMensaje('¡Nos vemos el 2 de noviembre!', 'var(--gold)');
+  } else if (estadoRegistrado === 'rechazada') {
+    mostrarMensaje('Nos harás mucha falta.', 'var(--charcoal-mid)');
+  }
+}
+
+async function verificarRespuesta() {
+  try {
+    const res = await fetch(`${API_BASE}/verificar.php?nombre=${encodeURIComponent(nombreParam)}`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.found && data.estado !== 'pendiente') {
+      bloquearBotones(data.estado);
+    }
+  } catch (e) { console.warn('No se pudo verificar respuesta previa', e); }
+}
+
+async function enviarRespuesta(estado) {
+  btnAceptar.disabled  = true;
+  btnRechazar.disabled = true;
+  try {
+    const res = await fetch(`${API_BASE}/responder.php`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: nombreParam, cupos: cuposParam, estado }),
+    });
+    const data = await res.json();
+    if (data.status === 'success' || data.estado) {
+      bloquearBotones(estado);
+    } else {
+      if (data.estado) { bloquearBotones(data.estado); return; }
+      btnAceptar.disabled  = false;
+      btnRechazar.disabled = false;
+      mostrarMensaje('Ocurrió un error. Intenta de nuevo.', 'var(--red, #c0392b)');
+    }
+  } catch {
+    btnAceptar.disabled  = false;
+    btnRechazar.disabled = false;
+    mostrarMensaje('Sin conexión. Intenta de nuevo.', 'var(--red, #c0392b)');
+  }
+}
+
+if (btnAceptar)  btnAceptar.addEventListener('click',  () => enviarRespuesta('aceptada'));
+if (btnRechazar) btnRechazar.addEventListener('click', () => enviarRespuesta('rechazada'));
 
 /* ─────────────────────────────────────────
    ANIMACIÓN 1 — PÉTALOS CAYENDO
