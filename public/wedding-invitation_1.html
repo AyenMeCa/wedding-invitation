@@ -607,13 +607,27 @@
   /* ══════════════════════════════
      BLOQUE 3: DRESSCODE
   ══════════════════════════════ */
-  #dresscode { background: var(--charcoal); }
+  #dresscode { background: var(--charcoal); position: relative; overflow: hidden; }
   #dresscode .section-eyebrow { color: var(--gold-light); }
   #dresscode .section-title   { color: var(--white); }
   #dresscode .section-body    { color: rgba(255,255,255,0.55); }
 
+  /* Hojas decorativas de las esquinas */
+  .dresscode-leaf {
+    position: absolute;
+    width: 260px;
+    height: auto;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .dresscode-leaf-bl { bottom: -30px; left: -40px; }
+  .dresscode-leaf-tr { top: -30px; right: -40px; transform: rotate(0deg); }
+
   /* Layout dos columnas */
   .dresscode-container {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
@@ -1349,6 +1363,8 @@
 
 <!-- BLOQUE 3: DRESSCODE -->
 <section id="dresscode" aria-label="Dress code">
+  <img src="img/leaf-bottom-left.png" alt="" class="dresscode-leaf dresscode-leaf-bl" aria-hidden="true">
+  <img src="img/leaf-top-right.png" alt="" class="dresscode-leaf dresscode-leaf-tr" aria-hidden="true">
   <div class="dresscode-container">
     <!-- Columna izquierda: texto + colores -->
     <div class="dresscode-left fade-in">
@@ -1379,7 +1395,7 @@
     <div class="dresscode-right fade-in">
       <div class="floating-images">
         <div class="floating-photo floating-photo-1">
-          <img src="img/IMG_5702_gal.jpg" alt="Stiven y Mary caminando juntos" loading="lazy">
+          <img src="img/IMG_5658_gal.jpg" alt="Stiven y Mary caminando bajo los árboles" loading="lazy">
         </div>
         <div class="floating-photo floating-photo-2">
           <img src="img/IMG_5737_gal.jpg" alt="Stiven y Mary mirando hacia atrás sonriendo" loading="lazy">
