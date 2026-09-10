@@ -1808,11 +1808,19 @@ if (gallerySection && galleryTrack) {
 /* Parallax efecto mouse en fotos flotantes del hero (solo dispositivos con mouse real) */
 const heroFloatingPhotos = document.querySelectorAll('.hero-floating-photo');
 const heroSection = document.getElementById('hero');
-const tieneMouseReal = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+// matchMedia es una foto fija tomada al cargar; no siempre es fiable
+// (p.ej. emulación móvil de DevTools en modo "Responsive" sigue reportando
+// pointer:fine). Por eso, además, se detecta el toque en tiempo real: al
+// primer touchstart genuino se desactiva el parallax para siempre.
+let esTactil = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-if (tieneMouseReal) {
+window.addEventListener('touchstart', () => {
+  esTactil = true;
+  heroFloatingPhotos.forEach(photo => { photo.style.transform = ''; });
+}, { once: true, passive: true });
+
 document.addEventListener('mousemove', (e) => {
-  if (!heroSection) return;
+  if (esTactil || !heroSection) return;
 
   const rect = heroSection.getBoundingClientRect();
   const heroIsVisible = rect.top < window.innerHeight && rect.bottom > 0;
@@ -1834,7 +1842,6 @@ document.addEventListener('mousemove', (e) => {
     photo.style.transform = `translate(${distX}px, ${distY}px) rotate(${rot}deg)`;
   });
 });
-}
 </script>
 </body>
 </html>
