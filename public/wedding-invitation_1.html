@@ -769,6 +769,7 @@
   .no-kids-middle {
     position: relative;
     width: 100%;
+    overflow: hidden;
     background: linear-gradient(to bottom, var(--champagne), rgba(248,248,248,0.8));
     padding: 5rem 2rem;
     display: flex;
@@ -777,9 +778,30 @@
     min-height: 400px;
   }
 
+  .no-kids-leaf {
+    position: absolute;
+    width: 220px;
+    height: auto;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .no-kids-leaf-bl { bottom: -30px; left: -30px; }
+  .no-kids-leaf-br { bottom: -30px; right: -30px; transform: scaleX(-1); }
+
   .no-kids-text {
+    position: relative;
+    z-index: 1;
     text-align: center;
     max-width: 700px;
+  }
+
+  .no-kids-plant-divider {
+    display: block;
+    width: 140px;
+    height: auto;
+    margin: 1.5rem auto 0;
+    opacity: 0.85;
   }
 
   .no-kids-eyebrow {
@@ -1417,10 +1439,13 @@
 
   <!-- Content area with flat background -->
   <div class="no-kids-middle">
+    <img src="img/nokids-leaf-bl.png" alt="" class="no-kids-leaf no-kids-leaf-bl" aria-hidden="true">
+    <img src="img/nokids-leaf-br.png" alt="" class="no-kids-leaf no-kids-leaf-br" aria-hidden="true">
     <div class="no-kids-text fade-in">
       <span class="no-kids-eyebrow">A tener en cuenta</span>
       <h2 class="no-kids-title">Celebración para adultos</h2>
       <p class="no-kids-message">Hemos decidido que nuestra celebración sea <strong>sin niños</strong>. Gracias por comprender y acompañarnos en esta decisión.</p>
+      <img src="img/nokids-plant-center.png" alt="" class="no-kids-plant-divider" aria-hidden="true">
     </div>
   </div>
 
