@@ -1708,7 +1708,13 @@ async function verificarRespuesta() {
   try {
     const res = await fetch(`${API_BASE}/verificar.php?nombre=${encodeURIComponent(nombreParam)}`);
     const data = await res.json();
-    if (data.found && data.estado !== 'pendiente') {
+    if (!data.found) {
+      if (btnAceptar) btnAceptar.disabled = true;
+      if (btnRechazar) btnRechazar.disabled = true;
+      mostrarMensaje('No encontramos tu invitación con este enlace. Por favor contacta a los novios.', 'var(--red, #c0392b)');
+      return;
+    }
+    if (data.estado !== 'pendiente') {
       bloquearBotones(data.estado);
     }
   } catch (e) { console.warn('No se pudo verificar respuesta previa', e); }
@@ -1728,9 +1734,15 @@ async function enviarRespuesta(estado) {
       bloquearBotones(estado);
     } else {
       if (data.estado) { bloquearBotones(data.estado); return; }
+      if (data.message === 'Invitado no encontrado') {
+        btnAceptar.disabled  = true;
+        btnRechazar.disabled = true;
+        mostrarMensaje('No encontramos tu invitación con este enlace. Por favor contacta a los novios.', 'var(--red, #c0392b)');
+        return;
+      }
       btnAceptar.disabled  = false;
       btnRechazar.disabled = false;
-      mostrarMensaje('Ocurrió un error. Intenta de nuevo.', 'var(--red, #c0392b)');
+      mostrarMensaje(data.message || 'Ocurrió un error. Intenta de nuevo.', 'var(--red, #c0392b)');
     }
   } catch {
     btnAceptar.disabled  = false;
