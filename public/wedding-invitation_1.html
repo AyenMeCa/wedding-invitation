@@ -59,12 +59,17 @@
   }
   #welcome-modal.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
   .modal-ornament {
-    font-family: 'Great Vibes', cursive;
-    font-size: 4rem;
-    color: var(--gold-light);
-    line-height: 1;
+    height: 100px;
+    width: auto;
     margin-bottom: 1.5rem;
     animation: fadeUp 1s ease both;
+  }
+  .modal-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .modal-title {
     font-family: 'Cormorant Garamond', serif;
@@ -134,7 +139,8 @@
   /* ══════════════════════════════
      ANIMACIÓN 1 — PÉTALOS CAYENDO
   ══════════════════════════════ */
-  #petals-canvas {
+  #petals-canvas,
+  #modal-petals-canvas {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -426,7 +432,6 @@
   body.modo-publico footer {
     background: var(--champagne);
   }
-  body.modo-publico .footer-monogram { color: var(--gold-light); }
   body.modo-publico .footer-date { color: var(--charcoal-soft); }
   body.modo-publico .footer-divider { background: rgba(42,42,42,0.15); }
   body.modo-publico .footer-copy { color: var(--charcoal-soft); }
@@ -1136,9 +1141,8 @@
     text-align: center;
   }
   .footer-monogram {
-    font-family: 'Great Vibes', cursive;
-    font-size: 3rem;
-    color: var(--gold);
+    height: 64px;
+    width: auto;
     margin-bottom: 1rem;
   }
   .footer-date {
@@ -1229,10 +1233,13 @@
 
 <!-- WELCOME MODAL -->
 <div id="welcome-modal" role="dialog" aria-modal="true" aria-label="Bienvenida">
-  <div class="modal-ornament">S & M</div>
-  <p class="modal-title">Nos casamos</p>
-  <p class="modal-subtitle">Queremos que hagas parte de este momento</p>
-  <button class="modal-btn" onclick="closeModal()" aria-label="Entrar a la invitación">Acompáñanos</button>
+  <div id="modal-petals-canvas" aria-hidden="true"></div>
+  <div class="modal-content">
+    <img src="img/sm-logo.png" alt="S & M" class="modal-ornament">
+    <p class="modal-title">Nos casamos</p>
+    <p class="modal-subtitle">Queremos que hagas parte de este momento</p>
+    <button class="modal-btn" onclick="closeModal()" aria-label="Entrar a la invitación">Acompáñanos</button>
+  </div>
 </div>
 
 <!-- MÚSICA DE FONDO -->
@@ -1530,7 +1537,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-monogram" aria-label="S y M">S & M</div>
+  <img src="img/sm-logo.png" alt="S & M" class="footer-monogram">
   <p class="footer-date">02 · 11 · 2026</p>
   <div class="footer-divider"></div>
   <p class="footer-copy">Con amor, Stiven &amp; Mary</p>
@@ -1669,28 +1676,34 @@ if (btnRechazar) btnRechazar.addEventListener('click', () => enviarRespuesta('re
    ANIMACIÓN 1 — PÉTALOS CAYENDO
 ───────────────────────────────────────── */
 (function spawnPetals() {
-  const canvas  = document.getElementById('petals-canvas');
   const colors  = ['#4A7FA0', '#7BA7BC', '#E8EFF5', '#2E5F80'];
   const count   = 18;
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'petal';
-    const size  = 6 + Math.random() * 8;
-    const left  = Math.random() * 100;
-    const delay = Math.random() * 12;
-    const dur   = 8 + Math.random() * 10;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    p.style.cssText = `
-      left:${left}%;
-      width:${size}px;
-      height:${size * 1.4}px;
-      background:${color};
-      opacity:0;
-      animation-duration:${dur}s;
-      animation-delay:${delay}s;
-    `;
-    canvas.appendChild(p);
+
+  function llenar(canvas) {
+    if (!canvas) return;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      const size  = 6 + Math.random() * 8;
+      const left  = Math.random() * 100;
+      const delay = Math.random() * 12;
+      const dur   = 8 + Math.random() * 10;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText = `
+        left:${left}%;
+        width:${size}px;
+        height:${size * 1.4}px;
+        background:${color};
+        opacity:0;
+        animation-duration:${dur}s;
+        animation-delay:${delay}s;
+      `;
+      canvas.appendChild(p);
+    }
   }
+
+  llenar(document.getElementById('petals-canvas'));
+  llenar(document.getElementById('modal-petals-canvas'));
 })();
 
 /* ─────────────────────────────────────────
