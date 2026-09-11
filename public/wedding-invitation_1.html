@@ -904,10 +904,14 @@
       opacity: 0.4;
     }
     .no-kids-leaf-bl { left: 0; }
-    .no-kids-leaf-br { right: -6px; }
+    .no-kids-leaf-br {
+      top: -20px;
+      bottom: auto;
+      right: -6px;
+      transform: scaleY(-1);
+    }
     .no-kids-plant-divider {
-      width: 110px;
-      bottom: 44px;
+      display: none;
     }
   }
 
