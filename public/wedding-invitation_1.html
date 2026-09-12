@@ -802,6 +802,7 @@
   }
   .no-kids-leaf-bl { bottom: 0; left: 0; }
   .no-kids-leaf-br { bottom: 0; right: -10px; }
+  .no-kids-leaf-accent { display: none; }
 
   .no-kids-text {
     position: relative;
@@ -912,6 +913,18 @@
       bottom: auto;
       right: -20px;
       transform: scaleY(-1);
+    }
+    .no-kids-leaf-accent {
+      display: block;
+      position: absolute;
+      width: 130px;
+      height: auto;
+      opacity: 0.32;
+      right: -20px;
+      bottom: -10px;
+      transform: scaleX(-1);
+      pointer-events: none;
+      z-index: 0;
     }
     .no-kids-plant-divider {
       display: none;
@@ -1489,6 +1502,7 @@
   <div class="no-kids-middle">
     <img src="img/nokids-leaf-bl.png" alt="" class="no-kids-leaf no-kids-leaf-bl" aria-hidden="true">
     <img src="img/nokids-leaf-br.png" alt="" class="no-kids-leaf no-kids-leaf-br" aria-hidden="true">
+    <img src="img/nokids-leaf-bl.png" alt="" class="no-kids-leaf-accent" aria-hidden="true">
     <div class="no-kids-text fade-in">
       <span class="no-kids-eyebrow">A tener en cuenta</span>
       <h2 class="no-kids-title">Celebración para adultos</h2>
