@@ -231,6 +231,7 @@
     margin: 0 auto 0.5rem;
     line-height: 1.6;
     min-height: 3.2rem;
+    white-space: pre-line;
   }
   .hero-ref {
     font-family: 'DM Sans', sans-serif;
@@ -1809,7 +1810,10 @@ if (btnRechazar) btnRechazar.addEventListener('click', () => enviarRespuesta('re
 (function typewriterVerse() {
   const el      = document.getElementById('hero-verse-el');
   const refEl   = document.getElementById('hero-ref-el');
-  const text    = '"Sin embargo, Dios lo hizo todo hermoso para el momento apropiado."';
+  const esMobile = window.matchMedia('(max-width: 720px)').matches;
+  const text    = esMobile
+    ? '"Sin embargo, Dios lo hizo\ntodo hermoso para el momento apropiado."'
+    : '"Sin embargo, Dios lo hizo todo hermoso para el momento apropiado."';
   let   i       = 0;
   const cursor  = document.createElement('span');
   cursor.className = 'typewriter-cursor';
